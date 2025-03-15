@@ -1,0 +1,33 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+
+{% block category_list_context %}
+    <div class="card mt-2 mb-2
+    ">
+        <div class="card-header bg-light">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="mb-0" id="followers"></h5>
+                </div>
+                <div class="col text-end"><p class="font-sans-serif">Kategoriyalar</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body bg-light px-1 py-0">
+            <div class="row g-0 text-center fs--1">
+                {% for category in categories %}
+
+                    <div class="col-4 col-md-4 col-lg-3 col-xx1-2 mb-1">
+                        <div class="bg-white dark__bg-1100 p-1 h-100"><a href="{% url 'shop:index' category.id %}"><img
+                                class="img-thumbnail img-fluid  mb-3 shadow-sm"
+                                src="{{ category.image_abs }}" alt="" width="100"></a>
+                            <h6 class="mb-1"><a href="{% url 'shop:index' category.id %}">{{ category.title }}</a>
+                            </h6>
+                            <p class="fs--2 mb-1"></p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
