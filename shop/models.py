@@ -82,3 +82,29 @@ class ProductSpecifications(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     specifications_key = models.ForeignKey(ProductKeys, on_delete=models.CASCADE)
     specifications_value = models.ForeignKey(ProductValues, on_delete=models.CASCADE)
+
+
+class Customers(BaseModel):
+    image = models.ImageField(upload_to='customer_images', null=True, blank=True)
+    first_name = models.CharField(max_length=255, null=True, blank=True)
+    last_name = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True, unique=True)
+    number = models.CharField(max_length=255, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+    @property
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'
+
+    @property
+    def initials(self):
+        return f"{self.first_name[0]}{self.last_name[0]}".upper()
+
+    @property
+    def fixed_created_at(self):
+        return self.updated_at.strftime("%d/%m/%Y")
+
+    def __str__(self):
+        return self.full_name

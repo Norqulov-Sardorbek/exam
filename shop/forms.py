@@ -1,6 +1,6 @@
 from django import forms
 
-from shop.models import Product
+from shop.models import Product, Customers
 
 
 # Form vs ModelForm
@@ -37,5 +37,6 @@ class ProductModelForm(forms.ModelForm):
     class Meta:
         model = Product
         exclude = ()
+
 
 

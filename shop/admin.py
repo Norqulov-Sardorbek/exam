@@ -1,5 +1,6 @@
-from django.contrib import admin
 from adminsortable2.admin import SortableAdminMixin
+from django.contrib import admin
+
 from shop.models import *
 
 # Register your models here.
@@ -11,16 +12,14 @@ class ProductImageInline(admin.TabularInline):
     extra = 3
 
 
-class ProductSpecificationsInline( admin.TabularInline):
+class ProductSpecificationsInline(admin.TabularInline):
     model = ProductSpecifications
     extra = 1
     autocomplete_fields = ['specifications_key', 'specifications_value']
 
 
-
-
 @admin.register(Product)
-class ProductAdmin(SortableAdminMixin,admin.ModelAdmin):
+class ProductAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = ['name', 'price', 'my_order']
     inlines = [ProductImageInline, ProductSpecificationsInline]
 
@@ -39,3 +38,6 @@ class ProductValuesAdmin(admin.ModelAdmin):
 class ProductSpecificationsAdmin(admin.ModelAdmin):
     list_display = ['product', 'specifications_key', 'specifications_value']
     search_fields = ['product__name', 'specifications_key__key', 'specifications_value__value']
+
+
+admin.site.register(Customers)

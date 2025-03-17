@@ -1,0 +1,74 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+
+
+{% block customer-edit %}
+<style>
+ .form-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-container img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+</style>
+    <div class="container">
+        <div class="form-container">
+            <h3 class="text-center">Edit Customer</h3>
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="text-center">
+                    <img id="profilePic" src="{{ customer.image.url }}" alt="Profile Picture" onerror="this.src='/static/default.jpg'">
+                    <input type="file" class="form-control mt-2" name="image" accept="image/*" onchange="previewImage(event)">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">First Name</label>
+                    <input type="text" class="form-control" name="first_name" value="{{ customer.first_name }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" class="form-control" name="last_name" value="{{ customer.last_name }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email" value="{{ customer.email }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" class="form-control" name="number" value="{{ customer.number }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-control" name="address" value="{{ customer.address }}">
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function previewImage(event) {
+            let reader = new FileReader();
+            reader.onload = function () {
+                let output = document.getElementById('profilePic');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+{% endblock  %}
