@@ -1,139 +1,109 @@
-from django.db.models import Q
-from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from reportlab.lib.pagesizes import letter
+from django.views import View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.http import HttpResponse
 from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from .models import Category, Product, ProductImage, ProductSpecifications, Customers
+from django.db.models import Q
 
-from shop.models import *
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'shop/category.html'
+    context_object_name = 'categories'
 
 
-# Create your views here.
+class ProductListView(ListView):
+    model = Product
+    template_name = 'shop/products.html'
+    context_object_name = 'products'
 
-def categories_page(request):
-    categories = Category.objects.all()
-    return render(request, 'shop/category.html', {'categories': categories})
-
-
-def index(request, category_id: int | None = None):
-    search_query = request.GET.get('q', '')
-    filter_query = request.GET.get('filter', '')
-
-    if category_id:
-        products = Product.objects.filter(category_id=category_id)
-
-    else:
+    def get_queryset(self):
+        category_id = self.kwargs.get('category_id')
+        search_query = self.request.GET.get('q', '')
+        filter_query = self.request.GET.get('filter', '')
+        
         products = Product.objects.all().order_by('-updated_at')
-
-    if search_query:
-        products = Product.objects.filter(Q(name__icontains=search_query) | Q(description__icontains=search_query))
-
-    if filter_query == 'expensive':
-        products = products.order_by('-price')
-
-    elif filter_query == 'cheap':
-        products = products.order_by('price')
-
-    for product in products:
-        product.image = ProductImage.objects.filter(product=product).first()
-    context = {
-        'products': products,
-    }
-    return render(request, 'shop/products.html', context)
+        if category_id:
+            products = products.filter(category_id=category_id)
+        if search_query:
+            products = products.filter(Q(name__icontains=search_query) | Q(description__icontains=search_query))
+        if filter_query == 'expensive':
+            products = products.order_by('-price')
+        elif filter_query == 'cheap':
+            products = products.order_by('price')
+        
+        for product in products:
+            product.image = ProductImage.objects.filter(product=product).first()
+        return products
 
 
-def product_detail(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    images = ProductImage.objects.filter(product=product)
-    specifications = ProductSpecifications.objects.filter(product=product)
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'shop/detail.html'
+    context_object_name = 'product'
+    pk_url_kwarg = 'product_id'
 
-    context = {
-        'product': product,
-        'images': images,
-        'specifications': specifications,
-    }
-    return render(request, 'shop/detail.html', context)
-
-
-def customers_page(request):
-    customers = Customers.objects.all()
-    return render(request, 'shop/customers.html', {'customers': customers})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['images'] = ProductImage.objects.filter(product=self.object)
+        context['specifications'] = ProductSpecifications.objects.filter(product=self.object)
+        return context
 
 
-def customer_delete(request, customer_id):
-    customer = get_object_or_404(Customers, id=customer_id)
-    customer.delete()
-    return redirect('shop:customers')
+class CustomerListView(ListView):
+    model = Customers
+    template_name = 'shop/customers.html'
+    context_object_name = 'customers'
 
 
-def customer_edit(request, customer_id):
-    customer = get_object_or_404(Customers, id=customer_id)
+class CustomerDeleteView(DeleteView):
+    model = Customers
+    success_url = reverse_lazy('shop:customers')
 
-    if request.method == "POST":
-        customer.first_name = request.POST.get("first_name")
-        customer.last_name = request.POST.get("last_name")
-        customer.email = request.POST.get("email")
-        customer.number = request.POST.get("number")
-        customer.address = request.POST.get("address")
-
-        if 'image' in request.FILES:
-            customer.image = request.FILES['image']
-
-        customer.save()
-        return redirect('shop:customers')
-    context = {
-        'customer': customer,
-    }
-    return render(request, 'shop/customer-edit.html', context)
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
 
 
-def customer_add(request):
-    if request.method == "POST":
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        email = request.POST.get("email")
-        number = request.POST.get("number")
-        address = request.POST.get("address")
-        image = request.FILES.get("image", None)
-
-        customer = Customers.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            number=number,
-            address=address,
-            image=image
-        )
-        return redirect('shop:customers')
-
-    return render(request, 'shop/customer-edit.html', )
+class CustomerUpdateView(UpdateView):
+    model = Customers
+    fields = ['first_name', 'last_name', 'email', 'number', 'address', 'image']
+    template_name = 'shop/customer-edit.html'
+    success_url = reverse_lazy('shop:customers')
 
 
-def download_customers(request):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="customers.pdf"'
-
-    pdf = canvas.Canvas(response, pagesize=letter)
-    pdf.setFont("Helvetica", 12)
-
-    y = 750
+class CustomerCreateView(CreateView):
+    model = Customers
+    fields = ['first_name', 'last_name', 'email', 'number', 'address', 'image']
+    template_name = 'shop/customer-edit.html'
+    success_url = reverse_lazy('shop:customers')
 
 
-    pdf.drawString(30, y, "First Name")
-    pdf.drawString(130, y, "Last Name")
-    pdf.drawString(230, y, "Email")
-    pdf.drawString(380, y, "Phone Number")
-    pdf.drawString(530, y, "Address")
+class DownloadCustomersView(View):
+    def get(self, request, *args, **kwargs):
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="customers.pdf"'
 
-    y -= 20
+        pdf = canvas.Canvas(response, pagesize=letter)
+        pdf.setFont("Helvetica", 12)
+        y = 750
 
-
-    customers = Customers.objects.all()
-    for customer in customers:
-        pdf.drawString(30, y, customer.first_name)
-        pdf.drawString(130, y, customer.last_name)
-        pdf.drawString(230, y, customer.email)
-        pdf.drawString(380, y, customer.number)
-        pdf.drawString(530, y, customer.address)
+        pdf.drawString(30, y, "First Name")
+        pdf.drawString(130, y, "Last Name")
+        pdf.drawString(230, y, "Email")
+        pdf.drawString(380, y, "Phone Number")
+        pdf.drawString(530, y, "Address")
         y -= 20
-    pdf.save()
-    return response
+
+        customers = Customers.objects.all()
+        for customer in customers:
+            pdf.drawString(30, y, customer.first_name)
+            pdf.drawString(130, y, customer.last_name)
+            pdf.drawString(230, y, customer.email)
+            pdf.drawString(380, y, customer.number)
+            pdf.drawString(530, y, customer.address)
+            y -= 20
+
+        pdf.save()
+        return response

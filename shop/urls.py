@@ -1,20 +1,16 @@
 from django.urls import path
-
-from shop import views
+from shop.views import  *
 
 app_name = 'shop'
 
 urlpatterns = [
-    path('category/', views.categories_page, name='category'),
-    path('product/<int:category_id>/', views.index, name='index'),
-    path('product_detail/<int:product_id>/', views.product_detail, name='product_detail'),
-    path('products-of-category/<int:category_id>/', views.index, name='products_of_category'),
-    path('customers/', views.customers_page, name='customers'),
-    path('customer-delete/<int:customer_id>/', views.customer_delete, name='customer-delete'),
-    path('customer-edit/<int:customer_id>/', views.customer_edit, name='customer-edit'),
-path('customer-add/', views.customer_add, name='customer-add'),
-path('download-customers/', views.download_customers, name='download-customers'),
-
-
-
+    path('category/', CategoryListView.as_view(), name='category'),
+    path('product/<int:category_id>/', ProductListView.as_view(), name='index'),
+    path('product_detail/<int:product_id>/', ProductDetailView.as_view(), name='product_detail'),
+    path('products-of-category/<int:category_id>/', ProductListView.as_view(), name='products_of_category'),
+    path('customers/', CustomerListView.as_view(), name='customers'),
+    path('customer-delete/<int:customer_id>/', CustomerDeleteView.as_view(), name='customer-delete'),
+    path('customer-edit/<int:customer_id>/', CustomerUpdateView.as_view(), name='customer-edit'),
+    path('customer-add/', CustomerCreateView.as_view(), name='customer-add'),
+    path('download-customers/', DownloadCustomersView.as_view(), name='download-customers'),
 ]
