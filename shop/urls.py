@@ -13,4 +13,5 @@ urlpatterns = [
     path('customer-edit/<int:customer_id>/', CustomerUpdateView.as_view(), name='customer-edit'),
     path('customer-add/', CustomerCreateView.as_view(), name='customer-add'),
     path('download-customers/', DownloadCustomersView.as_view(), name='download-customers'),
+    path('send-email/', EmailFormView.as_view(), name='send-email'),
 ]

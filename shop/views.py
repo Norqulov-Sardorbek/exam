@@ -7,6 +7,9 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from .models import Category, Product, ProductImage, ProductSpecifications, Customers
 from django.db.models import Q
+from django.core.mail import send_mail
+from django.contrib import messages
+
 
 class CategoryListView(ListView):
     model = Category
@@ -23,7 +26,7 @@ class ProductListView(ListView):
         category_id = self.kwargs.get('category_id')
         search_query = self.request.GET.get('q', '')
         filter_query = self.request.GET.get('filter', '')
-        
+
         products = Product.objects.all().order_by('-updated_at')
         if category_id:
             products = products.filter(category_id=category_id)
@@ -33,7 +36,7 @@ class ProductListView(ListView):
             products = products.order_by('-price')
         elif filter_query == 'cheap':
             products = products.order_by('price')
-        
+
         for product in products:
             product.image = ProductImage.objects.filter(product=product).first()
         return products
@@ -107,3 +110,32 @@ class DownloadCustomersView(View):
 
         pdf.save()
         return response
+
+
+class EmailFormView(View):
+    template_name = "shop/emailSend.html"
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        emails = request.POST.get("emails", "").strip()
+        message = request.POST.get("message", "").strip()
+
+        if not emails or not message:
+            messages.error(request, "Iltimos, barcha maydonlarni to'ldiring.")
+            return redirect("shop:send-email")
+
+        email_list = emails.split()
+
+        for email in email_list:
+            send_mail(
+                "Assalomu alekum!"
+                "Norqulov Sardor",
+                "nsardorbek776@gmail.com",
+                [email],
+                fail_silently=False,
+            )
+
+        messages.success(request, "Email yuborildi.")
+        return redirect("shop:send-email")

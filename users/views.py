@@ -5,7 +5,7 @@ from django.views import View
 from django.urls import reverse_lazy
 from users.forms import LoginForm
 from users.models import CustomUser
-
+from django.core.mail import send_mail
 class LoginPageView(View):
     def get(self, request):
         form = LoginForm()
@@ -37,9 +37,18 @@ class RegisterPageView(View):
             if CustomUser.objects.filter(email=cd['email']).exists():
                 messages.error(request, 'Account with this email already exists.')
             else:
+                email = cd['email']
                 user = CustomUser.objects.create_user(email=cd['email'], password=cd['password'])
                 user.save()
                 messages.success(request, 'You have successfully registered')
+                send_mail(
+                    subject="Assalomu alekum!",
+                    message="Siz bizning saytimizda muvaffaqiyatli ro‘yxatdan o‘tdingiz.",
+                    from_email="nsardorbek776@gmail.com",
+                    recipient_list=[email],  # Doimo list formatida bo‘lishi kerak
+                    fail_silently=False,
+                )
+
                 login(request, user)
                 return redirect('shop:category')
         return render(request, 'users/register.html', {'form': form})
