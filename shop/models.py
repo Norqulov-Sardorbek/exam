@@ -86,6 +86,7 @@ class ProductSpecifications(models.Model):
 
 class Customers(BaseModel):
     image = models.ImageField(upload_to='customer_images', null=True, blank=True)
+    username = models.CharField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(null=True, blank=True, unique=True)
@@ -93,6 +94,13 @@ class Customers(BaseModel):
     address = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    slug = models.SlugField(max_length=255, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.username)
+        super(Customers, self).save(*args, **kwargs)
+
 
     @property
     def full_name(self):

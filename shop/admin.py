@@ -40,4 +40,7 @@ class ProductSpecificationsAdmin(admin.ModelAdmin):
     search_fields = ['product__name', 'specifications_key__key', 'specifications_value__value']
 
 
-admin.site.register(Customers)
+@admin.register(Customers)
+class CustomersAdmin(admin.ModelAdmin):
+    list_display = ( 'first_name', 'last_name' )
+    prepopulated_fields = {"slug": ("username",)}

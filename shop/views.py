@@ -54,7 +54,6 @@ class ProductDetailView(DetailView):
         context['specifications'] = ProductSpecifications.objects.filter(product=self.object)
         return context
 
-
 class CustomerListView(ListView):
     model = Customers
     template_name = 'shop/customers.html'
@@ -64,6 +63,8 @@ class CustomerListView(ListView):
 class CustomerDeleteView(DeleteView):
     model = Customers
     success_url = reverse_lazy('shop:customers')
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
@@ -74,6 +75,8 @@ class CustomerUpdateView(UpdateView):
     fields = ['first_name', 'last_name', 'email', 'number', 'address', 'image']
     template_name = 'shop/customer-edit.html'
     success_url = reverse_lazy('shop:customers')
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
 
 
 class CustomerCreateView(CreateView):
