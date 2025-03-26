@@ -20,8 +20,9 @@ from django.conf.urls.static import static
 from config import settings
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('users/', include('users.urls',namespace='users')),
-    path('', include('shop.urls',namespace='shop')),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+                  path('admin/', admin.site.urls),
+                  path('users/', include('users.urls', namespace='users')),
+                  path('', include('shop.urls', namespace='shop')),
+                  path('social-auth/',
+                       include('social_django.urls', namespace='social')),
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
