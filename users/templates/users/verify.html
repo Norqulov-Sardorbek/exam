@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email tasdiqlash</title>
+</head>
+<body>
+    <h2>Email tasdiqlash</h2>
+    <p>Iltimos, emailingizga yuborilgan tasdiqlash kodini kiriting.</p>
+
+    <form method="post" action="{% url 'users:verify' %}">
+        {% csrf_token %}
+        <label for="code">Tasdiqlash kodi:</label>
+        <input type="text" name="code" id="code" required>
+        <button type="submit">Tasdiqlash</button>
+    </form>
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
