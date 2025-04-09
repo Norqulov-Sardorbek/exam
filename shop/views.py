@@ -142,3 +142,72 @@ class EmailFormView(View):
 
         messages.success(request, "Email yuborildi.")
         return redirect("shop:send-email")
+
+
+def export_data(request):
+    format = request.GET.get('format')
+    if format == 'csv':
+        meta = Customers._meta
+        field_names = [field.name for field in meta.fields]
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=customer_list.csv'
+        writer = csv.writer(response)
+        writer.writerow(field_names)
+        for obj in Customer.objects.all():
+            row = writer.writerow([getattr(obj, field) for field in field_names])
+        return response
+
+    elif format == 'json':
+        response = HttpResponse(content_type='application/json')
+        data = list(Customer.objects.all().values('id', 'full_name', 'email', 'phone_number', 'address', 'joined'))
+        # response.content = json.dumps(data, indent=4)
+        response.write(json.dumps(data, indent=4, default=str))
+        response['Content-Disposition'] = 'attachment; filename=customers.json'
+        return response
+
+
+    elif format == 'xlsx':
+        customers = Customer.objects.all()
+        field_names = [field.name for field in Customers._meta.fields]
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.append(field_names)
+        for customer in customers:
+            row = [getattr(customer, field) for field in field_names]
+            worksheet.append(row)
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=customers.xlsx'
+        workbook.save(response)
+        return response
+
+
+    elif format == 'xml':
+
+        customers = Customer.objects.all()
+
+        root = ET.Element('customers')
+
+        for customer in customers:
+
+            cust_elem = ET.SubElement(root, 'customer')
+
+            for field in Customer._meta.fields:
+                child = ET.SubElement(cust_elem, field.name)
+
+                value = getattr(customer, field.name)
+
+                child.text = str(value)
+
+        tree = ET.ElementTree(root)
+
+        response = HttpResponse(content_type='application/xml')
+
+        response['Content-Disposition'] = 'attachment; filename=customers.xml'
+
+        tree.write(response, encoding='unicode')
+
+        return response
+    else:
+        response = HttpResponse(status=404)
+        response.content = 'Bad request'
+        return response

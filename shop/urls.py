@@ -1,5 +1,5 @@
 from django.urls import path
-from shop.views import  *
+from shop.views import *
 
 app_name = 'shop'
 
@@ -14,4 +14,5 @@ urlpatterns = [
     path('customer-add/', CustomerCreateView.as_view(), name='customer-add'),
     path('download-customers/', DownloadCustomersView.as_view(), name='download-customers'),
     path('send-email/', EmailFormView.as_view(), name='send-email'),
+    path('export-data/', views.export_data, name='export_data')
 ]
