@@ -27,7 +27,7 @@
                 {% csrf_token %}
 
                 <div class="text-center">
-                    <img id="profilePic" src="{{ customer.image.url }}" alt="Profile Picture" onerror="this.src='/static/default.jpg'">
+                    <img id="profilePic" src="{{ customer.image.url }}" alt="Profile Picture" >
                     <input type="file" class="form-control mt-2" name="image" accept="image/*" onchange="previewImage(event)">
                 </div>
 

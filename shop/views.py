@@ -9,7 +9,11 @@ from .models import Category, Product, ProductImage, ProductSpecifications, Cust
 from django.db.models import Q
 from django.core.mail import send_mail
 from django.contrib import messages
-
+import csv
+import json
+import xml.etree.ElementTree as ET
+from django.http import HttpResponse
+from openpyxl import Workbook
 
 class CategoryListView(ListView):
     model = Category
@@ -159,7 +163,7 @@ def export_data(request):
 
     elif format == 'json':
         response = HttpResponse(content_type='application/json')
-        data = list(Customer.objects.all().values('id', 'full_name', 'email', 'phone_number', 'address', 'joined'))
+        data = list(Customers.objects.all().values('id', 'full_name', 'email', 'phone_number', 'address', 'joined'))
         # response.content = json.dumps(data, indent=4)
         response.write(json.dumps(data, indent=4, default=str))
         response['Content-Disposition'] = 'attachment; filename=customers.json'
@@ -167,7 +171,7 @@ def export_data(request):
 
 
     elif format == 'xlsx':
-        customers = Customer.objects.all()
+        customers = Customers.objects.all()
         field_names = [field.name for field in Customers._meta.fields]
         workbook = Workbook()
         worksheet = workbook.active
@@ -183,7 +187,7 @@ def export_data(request):
 
     elif format == 'xml':
 
-        customers = Customer.objects.all()
+        customers = Customers.objects.all()
 
         root = ET.Element('customers')
 

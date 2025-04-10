@@ -14,5 +14,5 @@ urlpatterns = [
     path('customer-add/', CustomerCreateView.as_view(), name='customer-add'),
     path('download-customers/', DownloadCustomersView.as_view(), name='download-customers'),
     path('send-email/', EmailFormView.as_view(), name='send-email'),
-    path('export-data/', views.export_data, name='export_data')
+    path('export-data/', export_data, name='export_data')
 ]
