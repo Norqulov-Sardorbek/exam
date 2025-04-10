@@ -157,13 +157,13 @@ def export_data(request):
         response['Content-Disposition'] = 'attachment; filename=customer_list.csv'
         writer = csv.writer(response)
         writer.writerow(field_names)
-        for obj in Customer.objects.all():
+        for obj in Customers.objects.all():
             row = writer.writerow([getattr(obj, field) for field in field_names])
         return response
 
     elif format == 'json':
         response = HttpResponse(content_type='application/json')
-        data = list(Customers.objects.all().values('id', 'full_name', 'email', 'phone_number', 'address', 'joined'))
+        data = list(Customers.objects.all().values('id', 'first_name','last_name', 'email', 'number', 'address','created_at'))
         # response.content = json.dumps(data, indent=4)
         response.write(json.dumps(data, indent=4, default=str))
         response['Content-Disposition'] = 'attachment; filename=customers.json'
@@ -177,7 +177,13 @@ def export_data(request):
         worksheet = workbook.active
         worksheet.append(field_names)
         for customer in customers:
-            row = [getattr(customer, field) for field in field_names]
+            row = []
+            for field in field_names:
+                value = getattr(customer, field)
+                if hasattr(value, 'name'):
+                    row.append(value.name if value else '')
+                else:
+                    row.append(str(value) if value is not None else '')
             worksheet.append(row)
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename=customers.xlsx'
@@ -195,7 +201,7 @@ def export_data(request):
 
             cust_elem = ET.SubElement(root, 'customer')
 
-            for field in Customer._meta.fields:
+            for field in Customers._meta.fields:
                 child = ET.SubElement(cust_elem, field.name)
 
                 value = getattr(customer, field.name)
