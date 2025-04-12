@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'shop.apps.ShopConfig',
     'adminsortable2',
+    'social_django',
 ]
 JAZZMIN_SETTINGS = {
     "site_title": "Shop Admin",
@@ -89,6 +90,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'config.middleware.RequestLoggingMiddleware',
+    'config.middleware.AutoLogoutMiddleWare',
+    'config.middleware.UserAgentMiddleware',
+    'config.middleware.LanguageDetectionMiddleware',
+    'config.middleware.MaintenanceModeMiddleware',
+    'config.middleware.HeaderInjectionMiddleware',
+
+
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -168,13 +177,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'shop/media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
 
-
-EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST="smtp.gmail.com"
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER="nsardorbek776@gmail.com"
-EMAIL_HOST_PASSWORD='zrkd yhjn dbeg nlni'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "nsardorbek776@gmail.com"
+EMAIL_HOST_PASSWORD = 'zrkd yhjn dbeg nlni'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'social_core.backends.google.GoogleOAuth2',
@@ -205,3 +213,6 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
 )
+
+SESSION_COOKIE_AGE = 60  # seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
